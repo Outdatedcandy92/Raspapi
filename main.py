@@ -1,9 +1,44 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import uuid
+import json
+import os
+import secrets
 import requests
 import xmltodict
-import json
 
 app = FastAPI()
+
+USER_DATA_FILE = "users.json"
+
+if os.path.exists(USER_DATA_FILE):
+    with open(USER_DATA_FILE, "r") as file:
+        users = json.load(file)
+else:
+    users = {}
+
+class UserSignup(BaseModel):
+    email: str
+    password: str
+
+@app.post("/signup")
+async def signup(user: UserSignup):
+    if user.email in users:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    user_id = str(uuid.uuid4())
+    bearer_token = secrets.token_hex(16)
+    
+    users[user.email] = {
+        "user_id": user_id,
+        "password": user.password,
+        "bearer_token": bearer_token
+    }
+    
+    with open(USER_DATA_FILE, "w") as file:
+        json.dump(users, file)
+    
+    return {"message": "User signed up successfully", "bearer_token": bearer_token}
 
 @app.get("/")
 async def root():
@@ -18,7 +53,6 @@ async def get_routes():
     response = requests.get(url, headers=headers)
     data_dict = xmltodict.parse(response.content)
     
-    # Extract routes and transform the data
     routes = data_dict['body']['route']
     transformed_routes = [
         {"route": route["@tag"], "title": route["@title"]}
@@ -26,24 +60,3 @@ async def get_routes():
     ]
     
     return {"routes": transformed_routes}
-
-@app.get("/routeInfo")
-async def get_route_config(r: str):
-    url = f"https://retro.umoiq.com/service/publicXMLFeed?command=routeConfig&a=ttc&r={r}"
-    headers = {
-        "Accept-Encoding": "gzip, deflate"
-    }
-    response = requests.get(url, headers=headers)
-    data_dict = xmltodict.parse(response.content)
-    
-    route_info = data_dict['body']['route']
-    transformed_route_info = {
-        key.lstrip('@'): value for key, value in route_info.items()
-    }
-    if 'stop' in transformed_route_info:
-        transformed_route_info['stop'] = [
-            {key.lstrip('@'): value for key, value in stop.items()}
-            for stop in transformed_route_info['stop']
-        ]
-    
-    return transformed_route_info

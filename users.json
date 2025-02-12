@@ -1,0 +1,10 @@
+{
+    "user@example.com": {
+        "user_id": "f4a8da71-03c7-4a0f-8e86-75dbe7ad614e",
+        "password": "securepassword"
+    },
+    "user@1example.com": {
+        "user_id": "52bb91cd-3311-48fb-b9fc-f790fd39d488",
+        "password": "securepassword"
+    }
+}
