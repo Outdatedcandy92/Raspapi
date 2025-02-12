@@ -1,0 +1,7 @@
+get req
+ -  get bus stop
+ -  get stop time
+ -  pred for multiple stops
+post req
+ - set a default stop
+ - sort by routes or by time in pred
