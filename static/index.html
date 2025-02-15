@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTC API Documentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+
+        header {
+            background: #333;
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #77aaff 3px solid;
+        }
+
+        header a {
+            color: #fff;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 16px;
+        }
+
+        header ul {
+            padding: 0;
+            list-style: none;
+        }
+
+        header li {
+            float: left;
+            display: inline;
+            padding: 0 20px 0 20px;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .content {
+            padding: 20px;
+            background: #fff;
+            margin-top: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .endpoint {
+            margin-bottom: 20px;
+        }
+
+        .endpoint h3 {
+            margin: 0;
+            padding: 0;
+        }
+
+        .endpoint p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <h1>TTC API Documentation</h1>
+            <ul>
+                <li class="dropdown">
+                    <a href="javascript:void(0)">Endpoints</a>
+                    <div class="dropdown-content">
+                        <a href="#signup">/signup</a>
+                        <a href="#add_route">/add_route</a>
+                        <a href="#remove_route">/remove_route</a>
+                        <a href="#routes">/routes</a>
+                        <a href="#route_info">/route_info</a>
+                        <a href="#predictions">/predictions</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </header>
+    <div class="container">
+        <div class="content">
+            <div id="signup" class="endpoint">
+                <h3>/signup</h3>
+                <p><strong>Method:</strong> POST</p>
+                <p><strong>Description:</strong> Register a new user.</p>
+                <p><strong>Arguments:</strong></p>
+                <ul>
+                    None
+                </ul>
+                <p><strong>Headers:</strong>
+<ul>
+                    <li>email: string</li>
+                    <li>password: string</li>
+</ul>
+                </p>
+            </div>
+            <div id="add_route" class="endpoint">
+                <h3>/add_route</h3>
+                <p><strong>Method:</strong> POST</p>
+                <p><strong>Description:</strong> Add a route to the user's data.</p>
+                <p><strong>Arguments:</strong></p>
+                <ul>
+                    <li>route: string</li>
+                </ul>
+                <p><strong>Headers:</strong></p>
+                <ul>
+                    <li>token: string (Bearer token for authentication)</li>
+                </ul>
+            </div>
+            <div id="remove_route" class="endpoint">
+                <h3>/remove_route</h3>
+                <p><strong>Method:</strong> GET</p>
+                <p><strong>Description:</strong> Remove a route from the user's data.</p>
+                <p><strong>Arguments:</strong> None</p>
+                <p><strong>Headers:</strong></p>
+                <ul>
+                    <li>token: string (Bearer token for authentication)</li>
+                </ul>
+            </div>
+            <div id="routes" class="endpoint">
+                <h3>/routes</h3>
+                <p><strong>Method:</strong> GET</p>
+                <p><strong>Description:</strong> Get a list of routes.</p>
+                <p><strong>Arguments:</strong> None</p>
+                <p><strong>Headers:</strong></p>
+                <ul>
+                    <li>token: string (Bearer token for authentication)</li>
+                </ul>
+            </div>
+            <div id="route_info" class="endpoint">
+                <h3>/route_info</h3>
+                <p><strong>Method:</strong> GET</p>
+                <p><strong>Description:</strong> Get information about a specific route.</p>
+                <p><strong>Arguments:</strong></p>
+                <ul>
+                    <li>r: string (Route tag, optional)</li>
+                </ul>
+                <p><strong>Headers:</strong></p>
+                <ul>
+                    <li>token: string (Bearer token for authentication)</li>
+                </ul>
+            </div>
+            <div id="predictions" class="endpoint">
+                <h3>/predictions</h3>
+                <p><strong>Method:</strong> GET</p>
+                <p><strong>Description:</strong> Get predictions for a specific stop and route.</p>
+                <p><strong>Arguments:</strong></p>
+                <ul>
+                    <li>s: string (Stop ID, required)</li>
+                    <li>rt: string (Route tag, optional)</li>
+                </ul>
+                <p><strong>Headers:</strong></p>
+                <ul>
+                    <li>token: string (Bearer token for authentication)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -7,8 +7,12 @@ import os
 import secrets
 import requests
 import xmltodict
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
+
+app.mount("/", StaticFiles(directory="static",html=True), name="index")
+
 
 USER_DATA_FILE = "users.json"
 TOKENS_FILE = "tokens.json"
@@ -39,6 +43,7 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     if token not in tokens.values():
         raise HTTPException(status_code=403, detail="Invalid or expired token")
     return token
+
 
 @app.post("/signup")
 async def signup(user: UserSignup):
@@ -100,10 +105,9 @@ async def remove_route(token: str = Depends(verify_token)):
     
     return {"message": "Route removed successfully"}
 
-# Root endpoint
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
+
+
+
 
 # Get a list of routes
 @app.get("/routes")
@@ -157,3 +161,58 @@ async def get_route_info(r: str = None, token: str = Depends(verify_token)):
         ]
     
     return transformed_route_info
+
+
+@app.get("/predictions")
+async def get_predictions(s: str, rt: str = None, token: str = Depends(verify_token)):
+    user_id = next((uid for uid, tkn in tokens.items() if tkn == token), None)
+    if not user_id:
+        raise HTTPException(status_code=403, detail="Invalid or expired token")
+    
+    user_email = next((email for email, data in users.items() if data["user_id"] == user_id), None)
+    if not user_email:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if rt:
+        url = f"https://retro.umoiq.com/service/publicXMLFeed?command=predictions&a=ttc&stopId={s}&routeTag={rt}"
+    else:
+        if "route" in users[user_email]:
+            route = users[user_email]["route"]
+            url = f"https://retro.umoiq.com/service/publicXMLFeed?command=predictions&a=ttc&stopId={s}&routeTag={route}"
+        else:
+            url = f"https://retro.umoiq.com/service/publicXMLFeed?command=predictions&a=ttc&stopId={s}"
+    
+    headers = {
+        "Accept-Encoding": "gzip, deflate"
+    }
+    response = requests.get(url, headers=headers)
+    response_data = xmltodict.parse(response.content)
+
+    predictions = response_data['body']
+    if '@copyright' in predictions:
+        del predictions['@copyright']
+    
+    def transform_keys(obj):
+        if isinstance(obj, dict):
+            new_obj = {}
+            for key, value in obj.items():
+                new_key = key.lstrip('@')
+                new_obj[new_key] = transform_keys(value)
+            return new_obj
+        elif isinstance(obj, list):
+            return [transform_keys(item) for item in obj]
+        else:
+            return obj
+    
+    transformed_predictions = transform_keys(predictions)
+    
+    if 'predictions' in transformed_predictions:
+        for prediction in transformed_predictions['predictions']:
+            if 'direction' in prediction:
+                prediction['direction'] = transform_keys(prediction['direction'])
+            keys_to_remove = ['agencyTitle', 'routeTitle', 'routeTag', 'stopTitle', 'stopTag']
+            for key in keys_to_remove:
+                if key in prediction:
+                    del prediction[key]
+    
+    return transformed_predictions
