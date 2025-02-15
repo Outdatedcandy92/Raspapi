@@ -8,10 +8,18 @@ import secrets
 import requests
 import xmltodict
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 app = FastAPI()
 
-app.mount("/", StaticFiles(directory="static",html=True), name="index")
+# Mount static files at /static
+app.mount("/static", StaticFiles(directory="static", html=True), name="static")
+
+# Serve index.html when someone visits "/"
+@app.get("/")
+async def serve_index():
+    return FileResponse("static/index.html")
+
 
 
 USER_DATA_FILE = "users.json"
